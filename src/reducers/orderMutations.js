@@ -1,0 +1,82 @@
+import {
+  STATUS_PENDING,
+  STATUS_FILLED,
+  TYPE_BUY,
+  TYPE_SELL,
+} from '../constants'
+
+// Fill orders in state in a pure manner
+export const fillOrders = (state) => {
+  // Working copies
+  let newState = state
+  let newOrdersMap = newState.ordersMap
+  // Easier to work with sorted JS arrays
+  const ordersArray = newOrdersMap.toArray()
+
+  // Divide out pending buy and sell orders, sorted in descending price order
+  const buyOrders = ordersArray
+    .filter(order => order.status === STATUS_PENDING)
+    .filter(order => order.type === TYPE_BUY)
+    .sort((orderA, orderB) => orderB.price - orderA.price)
+  const sellOrders = ordersArray
+    .filter(order => order.status === STATUS_PENDING)
+    .filter(order => order.type === TYPE_SELL)
+    .sort((orderA, orderB) => orderA.price - orderB.price)
+
+  if (sellOrders.length === 0 || buyOrders.length === 0) {
+    // No orders to fill
+    return state
+  }
+
+  let sellIdx = 0
+  let buyIdx = 0
+  const numBuyOrders = buyOrders.length
+  const numSellOrders = sellOrders.length
+
+  // Check if any buy orders can fill the sell order
+  while (sellIdx < numSellOrders && buyIdx < numBuyOrders) {
+    let buyOrder = buyOrders[buyIdx]
+    let sellOrder = sellOrders[sellIdx]
+
+    if (buyOrder.price >= sellOrder.price) {
+      // An order will be filled
+      const newBuyOrderAmount = buyOrder.amount - sellOrder.amount
+      if (newBuyOrderAmount === 0) {
+        // Both buy and sell orders are filled
+        newOrdersMap = newOrdersMap.set(buyOrder.id, { ...newOrdersMap.get(buyOrder.id), status: STATUS_FILLED, lastModified: Date.now() })
+        newOrdersMap = newOrdersMap.set(sellOrder.id, { ...newOrdersMap.get(sellOrder.id), status: STATUS_FILLED, lastModified: Date.now() })
+        buyIdx += 1
+        sellIdx += 1
+      } else if (newBuyOrderAmount > 0) {
+        // Sell order is filled, but not buy order
+        newOrdersMap = newOrdersMap.set(sellOrder.id, { ...newOrdersMap.get(sellOrder.id), status: STATUS_FILLED, lastModified: Date.now() })
+        newOrdersMap = newOrdersMap.set(buyOrder.id, { ...newOrdersMap.get(buyOrder.id), amount: newBuyOrderAmount, lastModified: Date.now() })
+        sellIdx += 1
+      } else {
+        // Buy order is filled, but not sell order
+        newOrdersMap = newOrdersMap.set(buyOrder.id, { ...newOrdersMap.get(buyOrder.id), status: STATUS_FILLED, lastModified: Date.now() })
+        newOrdersMap = newOrdersMap.set(sellOrder.id, { ...newOrdersMap.get(sellOrder.id), amount: -1 * newBuyOrderAmount, lastModified: Date.now() })
+        buyIdx += 1
+      }
+    } else {
+      // No order filled, advance to next sell order
+      sellIdx += 1
+    }
+  }
+  return { ...newState, ordersMap: newOrdersMap }
+}
+
+// Purely add a new order to state, fill any orders possible, and return new state
+export const addNewOrder = (state, type, price, amount) => {
+  const newId = state.orderCount + 1
+  const newOrder = {
+    id: newId,
+    type: type,
+    price: price,
+    amount: amount,
+    status: STATUS_PENDING,
+    lastModified: Date.now(),
+  }
+  const newState = { orderCount: newId, ordersMap: state.ordersMap.set(newId, newOrder) }
+  return fillOrders(newState)
+}
