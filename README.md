@@ -10,3 +10,6 @@ yarn start
 ```
 
 A browser will open Coin Xchange at `http://localhost:3000`
+
+## Storybook
+This project uses [Storybook](https://storybook.js.org/). Start it up with `yarn run storybook`
