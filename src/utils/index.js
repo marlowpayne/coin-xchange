@@ -1,3 +1,5 @@
+import moment from 'moment'
+
 import {
   NUMBER_MAX_PRICE,
   NUMBER_SCALE_ORDER_AMOUNT,
@@ -33,6 +35,9 @@ export const getRandomOrderType = () => {
 // Rounding
 export const roundTwoDecimals = num => Math.round(num * 100) / 100
 export const roundSatoshiDecimals = num => Math.round(num * 100000000) / 100000000
+
+// Rounding time / moments
+export const roundMoment = (date, duration, mathMethod) => moment(Math[mathMethod]((+date) / (+duration)) * (+duration))
 
 // Display decimals
 export const displayTwoDecimals = num => parseFloat(num).toFixed(2)

@@ -1,3 +1,5 @@
+import moment from 'moment'
+
 import {
   STATUS_PENDING,
   STATUS_FILLED,
@@ -44,19 +46,19 @@ export const fillOrders = (state) => {
       const newBuyOrderAmount = buyOrder.amount - sellOrder.amount
       if (newBuyOrderAmount === 0) {
         // Both buy and sell orders are filled
-        newOrdersMap = newOrdersMap.set(buyOrder.id, { ...newOrdersMap.get(buyOrder.id), status: STATUS_FILLED, lastModified: Date.now() })
-        newOrdersMap = newOrdersMap.set(sellOrder.id, { ...newOrdersMap.get(sellOrder.id), status: STATUS_FILLED, lastModified: Date.now() })
+        newOrdersMap = newOrdersMap.set(buyOrder.id, { ...newOrdersMap.get(buyOrder.id), status: STATUS_FILLED, lastModified: moment() })
+        newOrdersMap = newOrdersMap.set(sellOrder.id, { ...newOrdersMap.get(sellOrder.id), status: STATUS_FILLED, lastModified: moment() })
         buyIdx += 1
         sellIdx += 1
       } else if (newBuyOrderAmount > 0) {
         // Sell order is filled, but not buy order
-        newOrdersMap = newOrdersMap.set(sellOrder.id, { ...newOrdersMap.get(sellOrder.id), status: STATUS_FILLED, lastModified: Date.now() })
-        newOrdersMap = newOrdersMap.set(buyOrder.id, { ...newOrdersMap.get(buyOrder.id), amount: newBuyOrderAmount, lastModified: Date.now() })
+        newOrdersMap = newOrdersMap.set(sellOrder.id, { ...newOrdersMap.get(sellOrder.id), status: STATUS_FILLED, lastModified: moment() })
+        newOrdersMap = newOrdersMap.set(buyOrder.id, { ...newOrdersMap.get(buyOrder.id), amount: newBuyOrderAmount, lastModified: moment() })
         sellIdx += 1
       } else {
         // Buy order is filled, but not sell order
-        newOrdersMap = newOrdersMap.set(buyOrder.id, { ...newOrdersMap.get(buyOrder.id), status: STATUS_FILLED, lastModified: Date.now() })
-        newOrdersMap = newOrdersMap.set(sellOrder.id, { ...newOrdersMap.get(sellOrder.id), amount: -1 * newBuyOrderAmount, lastModified: Date.now() })
+        newOrdersMap = newOrdersMap.set(buyOrder.id, { ...newOrdersMap.get(buyOrder.id), status: STATUS_FILLED, lastModified: moment() })
+        newOrdersMap = newOrdersMap.set(sellOrder.id, { ...newOrdersMap.get(sellOrder.id), amount: -1 * newBuyOrderAmount, lastModified: moment() })
         buyIdx += 1
       }
     } else {
@@ -111,7 +113,7 @@ export const addNewOrder = (state, type, price, amount) => {
     price: price,
     amount: amount,
     status: STATUS_PENDING,
-    lastModified: Date.now(),
+    lastModified: moment(),
   }
   let newState = { orderCount: newId, ordersMap: state.ordersMap.set(newId, newOrder) }
   newState = trimOrders(newState)

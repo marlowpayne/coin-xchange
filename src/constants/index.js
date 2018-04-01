@@ -1,12 +1,21 @@
-// Magic numbers
-export const NUMBER_INITIAL_BUY_ORDERS = 50
-export const NUMBER_INITIAL_SELL_ORDERS = 50
+/* Magic numbers */
+// Initial market data seeding
+export const NUMBER_INITIAL_BUY_ORDERS = 100
+export const NUMBER_INITIAL_SELL_ORDERS = 100
+
 export const NUMBER_MIN_PRICE = 9990
 export const NUMBER_MAX_PRICE = 10000
 export const NUMBER_SCALE_ORDER_AMOUNT = 10
+
+// How many total orders are kept in memory
 export const NUMBER_MAX_ORDERS = 1000
+
+// Min and max delay for simulated market activity (buy or sell)
 export const NUMBER_MIN_ACTIVITY_DELAY = 200
 export const NUMBER_MAX_ACTIVITY_DELAY = 750
+
+// Size of time buckets for price graph
+export const NUMBER_SECONDS_CHART_GROUPING = 2
 
 // Order types
 export const TYPE_BUY = 'BUY'

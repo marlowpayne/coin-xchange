@@ -3,9 +3,11 @@ import PropTypes from 'prop-types'
 import styled from 'styled-components'
 import { connect } from 'react-redux'
 import Chart from 'chart.js'
-import Immutable from 'immutable'
+import moment from 'moment'
+import _ from 'lodash'
 
-import { STATUS_FILLED } from '../constants'
+import { NUMBER_SECONDS_CHART_GROUPING, STATUS_FILLED } from '../constants'
+import { roundMoment } from '../utils'
 
 // Bootstrap the candlestick CommonJS module
 require('chartjs-chart-financial')
@@ -13,6 +15,7 @@ require('chartjs-chart-financial')
 const Wrapper = styled.div`
   width: 50vw;
   height: 70vw;
+  padding-top: 1vh;
 `
 
 class Visual extends React.Component {
@@ -23,53 +26,58 @@ class Visual extends React.Component {
   getMassagedFilledOrders = () => {
     const { orders } = this.props
 
+    // Get all filled orders from oldest to newest
     const filledOrders = orders
       .filter(order => order.status === STATUS_FILLED)
-      .sort((orderA, orderB) => orderB.lastModified - orderA.lastModified)
-    let ordersByTimestamp = Immutable.Map()
-    // Load up a Map of timestamp to order price
-    filledOrders.forEach(order => {
-      const ts = order.lastModified
-      if (ordersByTimestamp.has(ts)) {
-        const priceArr = ordersByTimestamp.get(ts)
-        priceArr.push(order.price)
-        ordersByTimestamp = ordersByTimestamp.set(ts, priceArr)
-      } else {
-        ordersByTimestamp = ordersByTimestamp.set(ts, [])
+      .sort((orderA, orderB) => orderA.lastModified - orderB.lastModified)
+
+    // Group filled orders into time buckets
+    const groupedOrders = _.groupBy(filledOrders, order => roundMoment(
+      moment(order.lastModified),
+      moment.duration(NUMBER_SECONDS_CHART_GROUPING, 'seconds'),
+      'floor',
+    ))
+
+    // Extract prices from orders in the buckets
+    const pricesBySecond = _.mapValues(groupedOrders, order => _.map(order, 'price'))
+
+    // Grab pricing data from price arrays
+    const opensBySecond = _.mapValues(pricesBySecond, prices => _.head(prices))
+    const closesBySecond = _.mapValues(pricesBySecond, prices => _.last(prices))
+    const highsBySecond = _.mapValues(pricesBySecond, prices => Math.max(...prices))
+    const lowsBySecond = _.mapValues(pricesBySecond, prices => Math.min(...prices))
+
+    const res = _.map(groupedOrders, (order, ts) => {
+      /* Expected candlestick data format:
+      {
+        o: open,
+        c: close,
+        h: high,
+        l: low,
+        t: timestamp
+      }
+      */
+      return {
+        o: opensBySecond[ts],
+        c: closesBySecond[ts],
+        h: highsBySecond[ts],
+        l: lowsBySecond[ts],
+        t: ts,
       }
     })
-    const mappedPrices = ordersByTimestamp.map((priceArr, ts) => ({ t: ts, h: Math.max(...priceArr), l: Math.min(...priceArr) }))
-    // console.log(mappedPrices.toArray())
-    /*
-    {
-      o: open,
-		  h: high,
-		  l: low,
-		  c: close,
-      t: timestamp
-	  }
-    */
-    // const massagedFilledOrders = filledOrders.map(order => ({ t: order.lastModified, y: order.price }))
 
-    return mappedPrices.toArray()
+    return res
   }
 
   getMassagedData = () => {
     const massagedFilledOrders = this.getMassagedFilledOrders()
+
     // Massage data to match chart.js requirements
     return {
       datasets: [{
         label: 'Filled Orders',
         data: massagedFilledOrders,
-        options: {
-          scales: {
-            xAxes: [{
-              type: 'linear',
-              position: 'bottom'
-            }]
-          }
-        },
-      }]
+      }],
     }
   }
 
@@ -78,6 +86,8 @@ class Visual extends React.Component {
     this.state = {
       chart: null,
     }
+    // Set chart.js global options
+    Chart.defaults.global.legend.display = false
   }
 
   componentDidMount() {
@@ -86,6 +96,17 @@ class Visual extends React.Component {
     const myChart = new Chart(chartCanvas, {
       type: 'candlestick',
       data: this.getMassagedData(),
+      options: {
+        scales: {
+          yAxes: [{
+            scaleLabel: {
+              display: true,
+              labelString: '$',
+              fontColor: 'black',
+            },
+          }],
+        },
+      },
     })
 
     this.setState({ chart: myChart })
