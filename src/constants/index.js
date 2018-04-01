@@ -5,6 +5,8 @@ export const NUMBER_MIN_PRICE = 9990
 export const NUMBER_MAX_PRICE = 10000
 export const NUMBER_SCALE_ORDER_AMOUNT = 10
 export const NUMBER_MAX_ORDERS = 1000
+export const NUMBER_MIN_ACTIVITY_DELAY = 200
+export const NUMBER_MAX_ACTIVITY_DELAY = 750
 
 // Order types
 export const TYPE_BUY = 'BUY'

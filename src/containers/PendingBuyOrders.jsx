@@ -8,10 +8,7 @@ import Subheader from 'material-ui/Subheader'
 import { TYPE_BUY, STATUS_PENDING } from '../constants'
 import { OrderList } from '../visuals/OrderList'
 
-const Wrapper = styled.div`
-  height: 75vh;
-  overflow-y: auto;
-`
+const Wrapper = styled.div``
 
 const Visual = ({ orders }) => {
   const buyOrders = orders

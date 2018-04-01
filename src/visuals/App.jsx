@@ -4,12 +4,12 @@ import PropTypes from 'prop-types'
 
 // Material UI comps
 import AppBar from 'material-ui/AppBar'
-import RaisedButton from 'material-ui/RaisedButton'
 
-import { AddOrder } from './AddOrder'
 import { PendingSellOrders } from '../containers/PendingSellOrders'
 import { PendingBuyOrders } from '../containers/PendingBuyOrders'
 import { FilledOrders } from '../containers/FilledOrders'
+
+import { NUMBER_MAX_ACTIVITY_DELAY, NUMBER_MIN_ACTIVITY_DELAY } from '../constants'
 
 const Wrapper = styled.div`
   margin: 0;
@@ -30,13 +30,28 @@ export class App extends React.Component {
     populateInitialOrders: PropTypes.func.isRequired,
   }
 
+  beginActivity = () => {
+    let interval
+    let delayActivity = NUMBER_MIN_ACTIVITY_DELAY
+    const randomizeActivity = () => {
+      this.props.addRandomOrder()
+      // Get a random delay between min and max
+      delayActivity = Math.round(
+        Math.random() * (NUMBER_MAX_ACTIVITY_DELAY - NUMBER_MIN_ACTIVITY_DELAY)
+      ) + NUMBER_MIN_ACTIVITY_DELAY
+      clearInterval(interval)
+      interval = setInterval(randomizeActivity, delayActivity)
+    }
+    // Kick things off
+    interval = setInterval(randomizeActivity, delayActivity)
+  }
+
   componentDidMount() {
     this.props.populateInitialOrders()
+    this.beginActivity()
   }
 
   render() {
-    const { addRandomOrder, addNewOrder } = this.props
-
     return (
       <Wrapper>
         <AppBar title="Coin Xchange" showMenuIconButton={false} />
@@ -45,8 +60,6 @@ export class App extends React.Component {
           <PendingBuyOrders />
           <FilledOrders />
         </OrdersWrapper>
-        <AddOrder onSubmit={addNewOrder} />
-        <RaisedButton label="Add a Random Order" primary onClick={addRandomOrder} />
       </Wrapper>
     )
   }

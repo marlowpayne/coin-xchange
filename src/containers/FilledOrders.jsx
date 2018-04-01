@@ -8,10 +8,7 @@ import Subheader from 'material-ui/Subheader'
 import { STATUS_FILLED } from '../constants'
 import { OrderList } from '../visuals/OrderList'
 
-const Wrapper = styled.div`
-  height: 75vh;
-  overflow-y: auto;
-`
+const Wrapper = styled.div``
 
 const Visual = ({ orders }) => {
   const filledOrders = orders.filter(order => order.status === STATUS_FILLED).sort((orderA, orderB) => orderB.lastModified - orderA.lastModified)

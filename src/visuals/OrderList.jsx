@@ -19,6 +19,8 @@ const PriceHeader = styled.div`
 const OrdersWrapper = styled.div`
   grid-column: 1 / span 2;
   grid-row: 2;
+  height: 70vh;
+  overflow-y: auto;
 `
 
 export const OrderList = ({ orders }) => (
