@@ -3,6 +3,7 @@ import {
   STATUS_FILLED,
   TYPE_BUY,
   TYPE_SELL,
+  NUMBER_MAX_ORDERS,
 } from '../constants'
 
 // Fill orders in state in a pure manner
@@ -66,6 +67,41 @@ export const fillOrders = (state) => {
   return { ...newState, ordersMap: newOrdersMap }
 }
 
+const trimOrders = (state) => {
+  let newOrdersMap = state.ordersMap
+  const ordersArray = newOrdersMap.toArray()
+  const numOrdersToDelete = newOrdersMap.size - NUMBER_MAX_ORDERS
+  let ordersToDelete = []
+
+  if (numOrdersToDelete > 0) {
+    // Find the oldest filled orders
+    ordersToDelete = ordersArray
+      .filter(order => order.status === STATUS_FILLED)
+      .sort((orderA, orderB) => orderA.lastModified - orderB.lastModified)
+
+    if (ordersToDelete.length < numOrdersToDelete) {
+      // Next orders to delete are buy orders with the smallest prices
+      ordersToDelete = ordersArray
+        .filter(order => order.status === STATUS_PENDING)
+        .filter(order => order.type === TYPE_BUY)
+        .sort((orderA, orderB) => orderA.price - orderB.price)
+    }
+    if (ordersToDelete.length < numOrdersToDelete) {
+      // Final orders to delete are sell orders with the largest prices
+      ordersToDelete = ordersArray
+        .filter(order => order.status === STATUS_PENDING)
+        .filter(order => order.type === TYPE_SELL)
+        .sort((orderA, orderB) => orderB.price - orderA.price)
+    }
+
+    for (let i = 0; i < numOrdersToDelete; i += 1) {
+      const orderIdToDelete = ordersToDelete[i].id
+      newOrdersMap = newOrdersMap.delete(orderIdToDelete)
+    }
+  }
+  return { ...state, ordersMap: newOrdersMap }
+}
+
 // Purely add a new order to state, fill any orders possible, and return new state
 export const addNewOrder = (state, type, price, amount) => {
   const newId = state.orderCount + 1
@@ -77,6 +113,7 @@ export const addNewOrder = (state, type, price, amount) => {
     status: STATUS_PENDING,
     lastModified: Date.now(),
   }
-  const newState = { orderCount: newId, ordersMap: state.ordersMap.set(newId, newOrder) }
+  let newState = { orderCount: newId, ordersMap: state.ordersMap.set(newId, newOrder) }
+  newState = trimOrders(newState)
   return fillOrders(newState)
 }

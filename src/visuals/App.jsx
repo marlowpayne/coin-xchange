@@ -7,7 +7,8 @@ import AppBar from 'material-ui/AppBar'
 import RaisedButton from 'material-ui/RaisedButton'
 
 import { AddOrder } from './AddOrder'
-import { PendingOrders } from '../containers/PendingOrders'
+import { PendingSellOrders } from '../containers/PendingSellOrders'
+import { PendingBuyOrders } from '../containers/PendingBuyOrders'
 import { FilledOrders } from '../containers/FilledOrders'
 
 const Wrapper = styled.div`
@@ -40,7 +41,8 @@ export class App extends React.Component {
       <Wrapper>
         <AppBar title="Coin Xchange" showMenuIconButton={false} />
         <OrdersWrapper>
-          <PendingOrders />
+          <PendingSellOrders />
+          <PendingBuyOrders />
           <FilledOrders />
         </OrdersWrapper>
         <AddOrder onSubmit={addNewOrder} />
