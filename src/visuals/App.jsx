@@ -8,6 +8,7 @@ import AppBar from 'material-ui/AppBar'
 import { PendingSellOrders } from '../containers/PendingSellOrders'
 import { PendingBuyOrders } from '../containers/PendingBuyOrders'
 import { FilledOrders } from '../containers/FilledOrders'
+import { OrderChart } from '../containers/OrderChart'
 
 import { NUMBER_MAX_ACTIVITY_DELAY, NUMBER_MIN_ACTIVITY_DELAY } from '../constants'
 
@@ -58,6 +59,7 @@ export class App extends React.Component {
         <OrdersWrapper>
           <PendingSellOrders />
           <PendingBuyOrders />
+          <OrderChart />
           <FilledOrders />
         </OrdersWrapper>
       </Wrapper>

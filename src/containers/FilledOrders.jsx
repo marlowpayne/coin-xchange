@@ -11,7 +11,9 @@ import { OrderList } from '../visuals/OrderList'
 const Wrapper = styled.div``
 
 const Visual = ({ orders }) => {
-  const filledOrders = orders.filter(order => order.status === STATUS_FILLED).sort((orderA, orderB) => orderB.lastModified - orderA.lastModified)
+  const filledOrders = orders
+    .filter(order => order.status === STATUS_FILLED)
+    .sort((orderA, orderB) => orderB.lastModified - orderA.lastModified)
 
   return (
     <Wrapper>
@@ -21,6 +23,9 @@ const Visual = ({ orders }) => {
   )
 }
 
-const mapStateToProps = storeState => ({ orders: storeState.orders.ordersMap.toArray(), count: storeState.orders.orderCount })
+const mapStateToProps = storeState => ({
+  orders: storeState.orders.ordersMap.toArray(),
+  count: storeState.orders.orderCount,
+})
 
 export const FilledOrders = connect(mapStateToProps)(Visual)
