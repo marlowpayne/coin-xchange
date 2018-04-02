@@ -7,7 +7,7 @@ import {
   populateInitialOrders,
 } from '../actions'
 
-const mapStateToProps = storeState => storeState
+const mapStateToProps = storeState => ({ lastTradePrice: storeState.orders.lastTradePrice })
 
 const mapDispatchToProps = dispatch => ({
   addNewOrder: (newOrder) => dispatch(addOrder(newOrder)),

@@ -35,6 +35,7 @@ export const fillOrders = (state) => {
   let buyIdx = 0
   const numBuyOrders = buyOrders.length
   const numSellOrders = sellOrders.length
+  let { lastTradePrice } = state
 
   // Check if any buy orders can fill the sell order
   while (sellIdx < numSellOrders && buyIdx < numBuyOrders) {
@@ -48,17 +49,23 @@ export const fillOrders = (state) => {
         // Both buy and sell orders are filled
         newOrdersMap = newOrdersMap.set(buyOrder.id, { ...newOrdersMap.get(buyOrder.id), status: STATUS_FILLED, lastModified: moment() })
         newOrdersMap = newOrdersMap.set(sellOrder.id, { ...newOrdersMap.get(sellOrder.id), status: STATUS_FILLED, lastModified: moment() })
+        lastTradePrice = sellOrder.price
+
         buyIdx += 1
         sellIdx += 1
       } else if (newBuyOrderAmount > 0) {
         // Sell order is filled, but not buy order
         newOrdersMap = newOrdersMap.set(sellOrder.id, { ...newOrdersMap.get(sellOrder.id), status: STATUS_FILLED, lastModified: moment() })
         newOrdersMap = newOrdersMap.set(buyOrder.id, { ...newOrdersMap.get(buyOrder.id), amount: newBuyOrderAmount, lastModified: moment() })
+        lastTradePrice = sellOrder.price
+
         sellIdx += 1
       } else {
         // Buy order is filled, but not sell order
         newOrdersMap = newOrdersMap.set(buyOrder.id, { ...newOrdersMap.get(buyOrder.id), status: STATUS_FILLED, lastModified: moment() })
         newOrdersMap = newOrdersMap.set(sellOrder.id, { ...newOrdersMap.get(sellOrder.id), amount: -1 * newBuyOrderAmount, lastModified: moment() })
+        lastTradePrice = buyOrder.price
+
         buyIdx += 1
       }
     } else {
@@ -66,9 +73,10 @@ export const fillOrders = (state) => {
       sellIdx += 1
     }
   }
-  return { ...newState, ordersMap: newOrdersMap }
+  return { ...newState, ordersMap: newOrdersMap, lastTradePrice }
 }
 
+// Ensure total number of orders does not exceed the maximum
 const trimOrders = (state) => {
   let newOrdersMap = state.ordersMap
   const ordersArray = newOrdersMap.toArray()
@@ -104,7 +112,7 @@ const trimOrders = (state) => {
   return { ...state, ordersMap: newOrdersMap }
 }
 
-// Purely add a new order to state, fill any orders possible, and return new state
+// Purely add a new order to state, check for too many orders, fill any orders possible, and return new state
 export const addNewOrder = (state, type, price, amount) => {
   const newId = state.orderCount + 1
   const newOrder = {
@@ -115,7 +123,7 @@ export const addNewOrder = (state, type, price, amount) => {
     status: STATUS_PENDING,
     lastModified: moment(),
   }
-  let newState = { orderCount: newId, ordersMap: state.ordersMap.set(newId, newOrder) }
+  let newState = { ...state, orderCount: newId, ordersMap: state.ordersMap.set(newId, newOrder) }
   newState = trimOrders(newState)
   return fillOrders(newState)
 }

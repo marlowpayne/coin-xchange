@@ -4,14 +4,17 @@ import PropTypes from 'prop-types'
 
 // Material UI comps
 import AppBar from 'material-ui/AppBar'
+import FlatButton from 'material-ui/FlatButton'
 
 import { PendingSellOrders } from '../containers/PendingSellOrders'
 import { PendingBuyOrders } from '../containers/PendingBuyOrders'
 import { FilledOrders } from '../containers/FilledOrders'
 import { OrderChart } from '../containers/OrderChart'
+import { displayTwoDecimals } from '../utils'
 
 import { NUMBER_MAX_ACTIVITY_DELAY, NUMBER_MIN_ACTIVITY_DELAY } from '../constants'
 
+const Root = styled.div``
 const Wrapper = styled.div`
   margin: 0;
   padding: 0;
@@ -29,6 +32,11 @@ export class App extends React.Component {
     addNewOrder: PropTypes.func.isRequired,
     addRandomOrder: PropTypes.func.isRequired,
     populateInitialOrders: PropTypes.func.isRequired,
+    lastTradePrice: PropTypes.number,
+  }
+
+  static defaultProps = {
+    lastTradePrice: 0,
   }
 
   beginActivity = () => {
@@ -53,16 +61,23 @@ export class App extends React.Component {
   }
 
   render() {
+    const { lastTradePrice } = this.props
+
+    const lastTradeLabelText = `Last trade price: ${displayTwoDecimals(lastTradePrice)}`
+    const LastTradePrice = <FlatButton label={lastTradeLabelText} />
+
     return (
-      <Wrapper>
-        <AppBar title="Coin Xchange" showMenuIconButton={false} />
-        <OrdersWrapper>
-          <PendingSellOrders />
-          <PendingBuyOrders />
-          <OrderChart />
-          <FilledOrders />
-        </OrdersWrapper>
-      </Wrapper>
+      <Root>
+        <AppBar title="Coin Xchange" showMenuIconButton={false} iconElementRight={LastTradePrice} />
+        <Wrapper>
+          <OrdersWrapper>
+            <PendingSellOrders />
+            <PendingBuyOrders />
+            <OrderChart />
+            <FilledOrders />
+          </OrdersWrapper>
+        </Wrapper>
+      </Root>
     )
   }
 }
