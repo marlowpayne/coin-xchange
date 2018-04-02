@@ -1,9 +1,6 @@
 import moment from 'moment'
 
 import {
-  NUMBER_MAX_PRICE,
-  NUMBER_SCALE_ORDER_AMOUNT,
-  NUMBER_MIN_PRICE,
   TYPE_BUY,
   TYPE_SELL,
 } from '../constants'
@@ -12,13 +9,13 @@ import {
 export const getRandomDecimal = () => Math.random() + 0.00000001
 
 // Get a random order amount, scaled by a constant
-export const getRandomAmount = () => getRandomDecimal() * NUMBER_SCALE_ORDER_AMOUNT
+export const getRandomAmount = scale => getRandomDecimal() * scale
 
 // Get a random order price between the prescribed min and max
-export const getRandomPrice = () => (getRandomDecimal() * (NUMBER_MAX_PRICE - NUMBER_MIN_PRICE)) + NUMBER_MIN_PRICE
+export const getRandomPrice = (min, max) => (getRandomDecimal() * (max - min)) + min
 
 // Get a random int between min and max, inclusive
-const getRandomInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min
+export const getRandomInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min
 
 // Get a random order type
 export const getRandomOrderType = () => {
@@ -37,7 +34,7 @@ export const roundTwoDecimals = num => Math.round(num * 100) / 100
 export const roundSatoshiDecimals = num => Math.round(num * 100000000) / 100000000
 
 // Rounding time / moments
-export const roundMoment = (date, duration, mathMethod) => moment(Math[mathMethod]((+date) / (+duration)) * (+duration))
+export const roundMoment = (date, duration, mathMethod) => moment(Math[mathMethod]((date) / (duration)) * (duration))
 
 // Display decimals
 export const displayTwoDecimals = num => parseFloat(num).toFixed(2)

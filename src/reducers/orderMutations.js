@@ -6,7 +6,19 @@ import {
   TYPE_BUY,
   TYPE_SELL,
   NUMBER_MAX_ORDERS,
+  MARKET_BULLISH,
+  MARKET_BEARISH,
+  MARKET_VOLATILITY,
+  MARKET_LOWEST_PRICE,
+  MARKET_VOLUME_SEED,
 } from '../constants'
+
+import {
+  getRandomOrderType,
+  getRandomInt,
+  getRandomAmount,
+  getRandomPrice,
+} from '../utils'
 
 // Fill orders in state in a pure manner
 export const fillOrders = (state) => {
@@ -126,4 +138,49 @@ export const addNewOrder = (state, type, price, amount) => {
   let newState = { ...state, orderCount: newId, ordersMap: state.ordersMap.set(newId, newOrder) }
   newState = trimOrders(newState)
   return fillOrders(newState)
+}
+
+// Purely add a new randomized order, influenced by prescribed market factors
+export const addRandomOrder = (state) => {
+  const { lastTradePrice } = state
+  const type = getRandomOrderType()
+
+  // Get a naive market factor
+  const marketFactor = (getRandomInt(1, MARKET_VOLATILITY) + MARKET_BULLISH) / (getRandomInt(1, MARKET_VOLATILITY) + MARKET_BEARISH)
+
+  const priceFluctuation = marketFactor * lastTradePrice
+
+  let price = lastTradePrice
+  if (marketFactor > 1) {
+    // Presumed bullish market, drive the price higher
+    const buyOrders = state.ordersMap.toArray()
+      .filter(order => order.status === STATUS_PENDING)
+      .filter(order => order.type === TYPE_BUY)
+      .sort((orderA, orderB) => orderB.price - orderA.price)
+    const currentMaxBuy = buyOrders.length > 0 ? buyOrders[0].price : lastTradePrice
+
+    const low = Math.min(lastTradePrice, currentMaxBuy)
+    const high = Math.max(lastTradePrice + priceFluctuation, currentMaxBuy + priceFluctuation)
+
+    price = getRandomPrice(low, high)
+  } else if (marketFactor < 1) {
+    // Presumed bearish market, drive the price lower
+    const sellOrders = state.ordersMap.toArray()
+      .filter(order => order.status === STATUS_PENDING)
+      .filter(order => order.type === TYPE_SELL)
+      .sort((orderA, orderB) => orderA.price - orderB.price)
+    const currentLowestSell = sellOrders.length > 0 ? sellOrders[0].price : lastTradePrice
+
+    const low = Math.min(
+      Math.max(lastTradePrice - priceFluctuation, MARKET_LOWEST_PRICE),
+      Math.max(currentLowestSell - priceFluctuation, MARKET_LOWEST_PRICE),
+    )
+    const high = Math.max(lastTradePrice, currentLowestSell)
+
+    price = getRandomPrice(low, high)
+  }
+
+  const amount = getRandomAmount(marketFactor * MARKET_VOLUME_SEED)
+
+  return addNewOrder(state, type, price, amount)
 }

@@ -12,7 +12,7 @@ import { FilledOrders } from '../containers/FilledOrders'
 import { OrderChart } from '../containers/OrderChart'
 import { displayTwoDecimals } from '../utils'
 
-import { NUMBER_MAX_ACTIVITY_DELAY, NUMBER_MIN_ACTIVITY_DELAY } from '../constants'
+import { ACTIVITY_DELAY_MIN_MS, ACTIVITY_DELAY_MAX_MS } from '../constants'
 
 const Root = styled.div``
 const Wrapper = styled.div`
@@ -41,13 +41,13 @@ export class App extends React.Component {
 
   beginActivity = () => {
     let interval
-    let delayActivity = NUMBER_MIN_ACTIVITY_DELAY
+    let delayActivity = ACTIVITY_DELAY_MIN_MS
     const randomizeActivity = () => {
       this.props.addRandomOrder()
       // Get a random delay between min and max
       delayActivity = Math.round(
-        Math.random() * (NUMBER_MAX_ACTIVITY_DELAY - NUMBER_MIN_ACTIVITY_DELAY)
-      ) + NUMBER_MIN_ACTIVITY_DELAY
+        Math.random() * (ACTIVITY_DELAY_MAX_MS - ACTIVITY_DELAY_MIN_MS)
+      ) + ACTIVITY_DELAY_MIN_MS
       clearInterval(interval)
       interval = setInterval(randomizeActivity, delayActivity)
     }
@@ -63,7 +63,7 @@ export class App extends React.Component {
   render() {
     const { lastTradePrice } = this.props
 
-    const lastTradeLabelText = `Last trade price: ${displayTwoDecimals(lastTradePrice)}`
+    const lastTradeLabelText = `Last trade price: $${displayTwoDecimals(lastTradePrice)}`
     const LastTradePrice = <FlatButton label={lastTradeLabelText} />
 
     return (
