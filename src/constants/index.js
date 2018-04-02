@@ -8,7 +8,7 @@ export const NUMBER_INITIAL_MAX_PRICE = 100
 export const NUMBER_INITIAL_ORDER_SCALING = 10
 
 // How many total orders are kept in memory
-export const NUMBER_MAX_ORDERS = 1000
+export const NUMBER_MAX_ORDERS = 300
 
 /* Market activity factors */
 /* ----------------------- */
