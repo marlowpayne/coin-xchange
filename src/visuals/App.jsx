@@ -10,7 +10,7 @@ import { PendingSellOrders } from '../containers/PendingSellOrders'
 import { PendingBuyOrders } from '../containers/PendingBuyOrders'
 import { FilledOrders } from '../containers/FilledOrders'
 import { OrderChart } from '../containers/OrderChart'
-import { displayTwoDecimals } from '../utils'
+import { displayTwoDecimals, media } from '../utils'
 
 import { ACTIVITY_DELAY_MIN_MS, ACTIVITY_DELAY_MAX_MS } from '../constants'
 
@@ -25,6 +25,8 @@ const OrdersWrapper = styled.div`
   display: flex;
   justify-content: space-between;
   height: 75vh;
+  ${media.laptop`flex-direction: column;`}
+  ${media.laptop`align-items: center;`}
 `
 
 export class App extends React.Component {

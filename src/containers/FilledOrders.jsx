@@ -7,8 +7,15 @@ import Subheader from 'material-ui/Subheader'
 
 import { STATUS_FILLED } from '../constants'
 import { OrderList } from '../visuals/OrderList'
+import { media } from '../utils'
 
-const Wrapper = styled.div``
+const Wrapper = styled.div`
+  width: 20vw;
+  ${media.laptop`width: 80vw;`}
+  padding: 1vw;
+  ${media.laptop`height: 30vh;`}
+  ${media.laptop`overflow-y: auto;`}
+`
 
 const Visual = ({ orders }) => {
   const filledOrders = orders

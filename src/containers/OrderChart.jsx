@@ -13,9 +13,9 @@ import { roundMoment } from '../utils'
 require('chartjs-chart-financial')
 
 const Wrapper = styled.div`
-  width: 50vw;
+  width: 40vw;
   height: 70vw;
-  padding-top: 1vh;
+  padding-top: 5vh;
 `
 
 class Visual extends React.Component {

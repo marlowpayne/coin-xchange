@@ -4,11 +4,12 @@ import styled from 'styled-components'
 
 import { Pulse } from './Pulse'
 import { STATUS_PENDING, TYPE_BUY } from '../constants'
-import { displayTwoDecimals, displaySatoshiDecimals } from '../utils'
+import { displayTwoDecimals, displaySatoshiDecimals, media } from '../utils'
 
 const Wrapper = styled.div`
   display: flex;
-  justify-content: space-around;
+  justify-content: space-between;
+  ${media.laptop`justify-content: space-around;`}
   color: ${p => p.type === TYPE_BUY ? 'green': 'red'};
 `
 const Number = styled.div``
