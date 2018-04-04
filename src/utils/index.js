@@ -17,9 +17,9 @@ export const getRandomPrice = (min, max) => (getRandomDecimal() * (max - min)) +
 // Get a random int between min and max, inclusive
 export const getRandomInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min
 
-// Get a random order type
-export const getRandomOrderType = () => {
-  switch (getRandomInt(1, 2)) {
+// Get a random order type, with an optional bias (between 0 and 1) for both buy and sell types
+export const getRandomOrderType = (biasBuy = 0, biasSell = 0) => {
+  switch (getRandomInt(1 + biasSell/2, 2 - biasBuy/2)) {
     case 1:
       return TYPE_BUY
     case 2:

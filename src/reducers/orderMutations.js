@@ -143,38 +143,47 @@ export const addNewOrder = (state, type, price, amount) => {
 // Purely add a new randomized order, influenced by prescribed market factors
 export const addRandomOrder = (state) => {
   const { lastTradePrice } = state
-  const type = getRandomOrderType()
 
   // Get a naive market factor
   const marketFactor = (getRandomInt(1, MARKET_VOLATILITY) + MARKET_BULLISH) / (getRandomInt(1, MARKET_VOLATILITY) + MARKET_BEARISH)
 
-  const priceFluctuation = marketFactor * lastTradePrice
+  const newPrice = marketFactor * lastTradePrice
+
+  // Sort buy orders by price, high to low
+  const buyOrders = state.ordersMap.toArray()
+    .filter(order => order.status === STATUS_PENDING)
+    .filter(order => order.type === TYPE_BUY)
+    .sort((orderA, orderB) => orderB.price - orderA.price)
+  const numBuyOrders = buyOrders.length
+
+  // Sort sell orders by price, low to high
+  const sellOrders = state.ordersMap.toArray()
+    .filter(order => order.status === STATUS_PENDING)
+    .filter(order => order.type === TYPE_SELL)
+    .sort((orderA, orderB) => orderA.price - orderB.price)
+  const numSellOrders = sellOrders.length
+
+  // Get a biased order type depending on which order type is dominating
+  let type = getRandomOrderType()
+  if (numBuyOrders / numSellOrders < 1) {
+    type = getRandomOrderType(numBuyOrders/numSellOrders, 0)
+  } else if (numSellOrders / numBuyOrders < 1) {
+    type = getRandomOrderType(0, numSellOrders/numBuyOrders)
+  }
 
   let price = lastTradePrice
   if (marketFactor > 1) {
     // Presumed bullish market, drive the price higher
-    const buyOrders = state.ordersMap.toArray()
-      .filter(order => order.status === STATUS_PENDING)
-      .filter(order => order.type === TYPE_BUY)
-      .sort((orderA, orderB) => orderB.price - orderA.price)
-    const currentMaxBuy = buyOrders.length > 0 ? buyOrders[0].price : lastTradePrice
+    const currentMaxBuy = numBuyOrders > 0 ? buyOrders[0].price : lastTradePrice
 
-    const low = Math.min(lastTradePrice, currentMaxBuy)
-    const high = Math.max(lastTradePrice + priceFluctuation, currentMaxBuy + priceFluctuation)
+    const low = Math.max(lastTradePrice, currentMaxBuy)
 
-    price = getRandomPrice(low, high)
+    price = getRandomPrice(low, newPrice)
   } else if (marketFactor < 1) {
     // Presumed bearish market, drive the price lower
-    const sellOrders = state.ordersMap.toArray()
-      .filter(order => order.status === STATUS_PENDING)
-      .filter(order => order.type === TYPE_SELL)
-      .sort((orderA, orderB) => orderA.price - orderB.price)
-    const currentLowestSell = sellOrders.length > 0 ? sellOrders[0].price : lastTradePrice
+    const currentLowestSell = numSellOrders > 0 ? sellOrders[0].price : lastTradePrice
 
-    const low = Math.min(
-      Math.max(lastTradePrice - priceFluctuation, MARKET_LOWEST_PRICE),
-      Math.max(currentLowestSell - priceFluctuation, MARKET_LOWEST_PRICE),
-    )
+    const low = Math.max(newPrice, MARKET_LOWEST_PRICE)
     const high = Math.max(lastTradePrice, currentLowestSell)
 
     price = getRandomPrice(low, high)
