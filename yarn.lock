@@ -1986,9 +1986,9 @@ chart.js@^2.7.2:
     chartjs-color "^2.1.0"
     moment "^2.10.2"
 
-"chartjs-chart-financial@git+https://git@github.com/chartjs/chartjs-chart-financial.git":
+"chartjs-chart-financial@git+https://git@github.com/marlowpayne/chartjs-chart-financial.git":
   version "0.1.0"
-  resolved "git+https://git@github.com/chartjs/chartjs-chart-financial.git#ee0eb1318c908e237019697ce409e765f4aeec5f"
+  resolved "git+https://git@github.com/marlowpayne/chartjs-chart-financial.git#ee0eb1318c908e237019697ce409e765f4aeec5f"
   dependencies:
     chart.js "^2.7.2"
 
