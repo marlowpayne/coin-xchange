@@ -1,6 +1,8 @@
 # Coin Xchange
 A simulated cryptocurrency exchange
 
+https://coin-xchange.surge.sh
+
 ## Running
 ```sh
 git clone https://github.com/marlowpayne/coin-xchange.git
