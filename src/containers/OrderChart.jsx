@@ -7,14 +7,15 @@ import moment from 'moment'
 import _ from 'lodash'
 
 import { NUMBER_SECONDS_CHART_GROUPING, STATUS_FILLED } from '../constants'
-import { roundMoment } from '../utils'
+import { roundMoment, media } from '../utils'
 
 // Bootstrap the candlestick CommonJS module
 require('chartjs-chart-financial')
 
 const Wrapper = styled.div`
   width: 40vw;
-  height: 70vw;
+  height: 70vh;
+  ${media.laptop`height: 40vh;`}
   padding-top: 5vh;
 `
 

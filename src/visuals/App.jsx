@@ -25,6 +25,7 @@ const OrdersWrapper = styled.div`
   display: flex;
   justify-content: space-between;
   height: 75vh;
+  ${media.laptop`height: fit-content;`}
   ${media.laptop`flex-direction: column;`}
   ${media.laptop`align-items: center;`}
 `
