@@ -1,4 +1,4 @@
-import moment from 'moment'
+import moment from "moment";
 
 import {
   STATUS_PENDING,
@@ -10,186 +10,220 @@ import {
   MARKET_BEARISH,
   MARKET_VOLATILITY,
   MARKET_LOWEST_PRICE,
-  MARKET_VOLUME_SEED,
-} from '../constants'
+  MARKET_VOLUME_SEED
+} from "../constants";
 
 import {
   getRandomOrderType,
   getRandomInt,
   getRandomAmount,
-  getRandomPrice,
-} from '../utils'
+  getRandomPrice
+} from "../utils";
 
 // Fill orders in state in a pure manner
-export const fillOrders = (state) => {
+export const fillOrders = state => {
   // Working copies
-  let newState = state
-  let newOrdersMap = newState.ordersMap
+  let newState = state;
+  let newOrdersMap = newState.ordersMap;
   // Easier to work with sorted JS arrays
-  const ordersArray = newOrdersMap.toArray()
+  const ordersArray = newOrdersMap.toArray();
 
   // Divide out pending buy and sell orders, sorted in descending price order
   const buyOrders = ordersArray
     .filter(order => order.status === STATUS_PENDING)
     .filter(order => order.type === TYPE_BUY)
-    .sort((orderA, orderB) => orderB.price - orderA.price)
+    .sort((orderA, orderB) => orderB.price - orderA.price);
   const sellOrders = ordersArray
     .filter(order => order.status === STATUS_PENDING)
     .filter(order => order.type === TYPE_SELL)
-    .sort((orderA, orderB) => orderA.price - orderB.price)
+    .sort((orderA, orderB) => orderA.price - orderB.price);
 
   if (sellOrders.length === 0 || buyOrders.length === 0) {
     // No orders to fill
-    return state
+    return state;
   }
 
-  let sellIdx = 0
-  let buyIdx = 0
-  const numBuyOrders = buyOrders.length
-  const numSellOrders = sellOrders.length
-  let { lastTradePrice } = state
+  let sellIdx = 0;
+  let buyIdx = 0;
+  const numBuyOrders = buyOrders.length;
+  const numSellOrders = sellOrders.length;
+  let { lastTradePrice } = state;
 
   // Check if any buy orders can fill the sell order
   while (sellIdx < numSellOrders && buyIdx < numBuyOrders) {
-    let buyOrder = buyOrders[buyIdx]
-    let sellOrder = sellOrders[sellIdx]
+    let buyOrder = buyOrders[buyIdx];
+    let sellOrder = sellOrders[sellIdx];
 
     if (buyOrder.price >= sellOrder.price) {
       // An order will be filled
-      const newBuyOrderAmount = buyOrder.amount - sellOrder.amount
+      const newBuyOrderAmount = buyOrder.amount - sellOrder.amount;
       if (newBuyOrderAmount === 0) {
         // Both buy and sell orders are filled
-        newOrdersMap = newOrdersMap.set(buyOrder.id, { ...newOrdersMap.get(buyOrder.id), status: STATUS_FILLED, lastModified: moment() })
-        newOrdersMap = newOrdersMap.set(sellOrder.id, { ...newOrdersMap.get(sellOrder.id), status: STATUS_FILLED, lastModified: moment() })
-        lastTradePrice = sellOrder.price
+        newOrdersMap = newOrdersMap.set(buyOrder.id, {
+          ...newOrdersMap.get(buyOrder.id),
+          status: STATUS_FILLED,
+          lastModified: moment()
+        });
+        newOrdersMap = newOrdersMap.set(sellOrder.id, {
+          ...newOrdersMap.get(sellOrder.id),
+          status: STATUS_FILLED,
+          lastModified: moment()
+        });
+        lastTradePrice = sellOrder.price;
 
-        buyIdx += 1
-        sellIdx += 1
+        buyIdx += 1;
+        sellIdx += 1;
       } else if (newBuyOrderAmount > 0) {
         // Sell order is filled, but not buy order
-        newOrdersMap = newOrdersMap.set(sellOrder.id, { ...newOrdersMap.get(sellOrder.id), status: STATUS_FILLED, lastModified: moment() })
-        newOrdersMap = newOrdersMap.set(buyOrder.id, { ...newOrdersMap.get(buyOrder.id), amount: newBuyOrderAmount, lastModified: moment() })
-        lastTradePrice = sellOrder.price
+        newOrdersMap = newOrdersMap.set(sellOrder.id, {
+          ...newOrdersMap.get(sellOrder.id),
+          status: STATUS_FILLED,
+          lastModified: moment()
+        });
+        newOrdersMap = newOrdersMap.set(buyOrder.id, {
+          ...newOrdersMap.get(buyOrder.id),
+          amount: newBuyOrderAmount,
+          lastModified: moment()
+        });
+        lastTradePrice = sellOrder.price;
 
-        sellIdx += 1
+        sellIdx += 1;
       } else {
         // Buy order is filled, but not sell order
-        newOrdersMap = newOrdersMap.set(buyOrder.id, { ...newOrdersMap.get(buyOrder.id), status: STATUS_FILLED, lastModified: moment() })
-        newOrdersMap = newOrdersMap.set(sellOrder.id, { ...newOrdersMap.get(sellOrder.id), amount: -1 * newBuyOrderAmount, lastModified: moment() })
-        lastTradePrice = buyOrder.price
+        newOrdersMap = newOrdersMap.set(buyOrder.id, {
+          ...newOrdersMap.get(buyOrder.id),
+          status: STATUS_FILLED,
+          lastModified: moment()
+        });
+        newOrdersMap = newOrdersMap.set(sellOrder.id, {
+          ...newOrdersMap.get(sellOrder.id),
+          amount: -1 * newBuyOrderAmount,
+          lastModified: moment()
+        });
+        lastTradePrice = buyOrder.price;
 
-        buyIdx += 1
+        buyIdx += 1;
       }
     } else {
       // No order filled, advance to next sell order
-      sellIdx += 1
+      sellIdx += 1;
     }
   }
-  return { ...newState, ordersMap: newOrdersMap, lastTradePrice }
-}
+  return { ...newState, ordersMap: newOrdersMap, lastTradePrice };
+};
 
 // Ensure total number of orders does not exceed the maximum
-const trimOrders = (state) => {
-  let newOrdersMap = state.ordersMap
-  const ordersArray = newOrdersMap.toArray()
-  const numOrdersToDelete = newOrdersMap.size - NUMBER_MAX_ORDERS
-  let ordersToDelete = []
+const trimOrders = state => {
+  let newOrdersMap = state.ordersMap;
+  const ordersArray = newOrdersMap.toArray();
+  const numOrdersToDelete = newOrdersMap.size - NUMBER_MAX_ORDERS;
+  let ordersToDelete = [];
 
   if (numOrdersToDelete > 0) {
     // Find the oldest filled orders
     ordersToDelete = ordersArray
       .filter(order => order.status === STATUS_FILLED)
-      .sort((orderA, orderB) => orderA.lastModified - orderB.lastModified)
+      .sort((orderA, orderB) => orderA.lastModified - orderB.lastModified);
 
     if (ordersToDelete.length < numOrdersToDelete) {
       // Next orders to delete are buy orders with the smallest prices
       ordersToDelete = ordersArray
         .filter(order => order.status === STATUS_PENDING)
         .filter(order => order.type === TYPE_BUY)
-        .sort((orderA, orderB) => orderA.price - orderB.price)
+        .sort((orderA, orderB) => orderA.price - orderB.price);
     }
     if (ordersToDelete.length < numOrdersToDelete) {
       // Final orders to delete are sell orders with the largest prices
       ordersToDelete = ordersArray
         .filter(order => order.status === STATUS_PENDING)
         .filter(order => order.type === TYPE_SELL)
-        .sort((orderA, orderB) => orderB.price - orderA.price)
+        .sort((orderA, orderB) => orderB.price - orderA.price);
     }
 
     for (let i = 0; i < numOrdersToDelete; i += 1) {
-      const orderIdToDelete = ordersToDelete[i].id
-      newOrdersMap = newOrdersMap.delete(orderIdToDelete)
+      const orderIdToDelete = ordersToDelete[i].id;
+      newOrdersMap = newOrdersMap.delete(orderIdToDelete);
     }
   }
-  return { ...state, ordersMap: newOrdersMap }
-}
+  return { ...state, ordersMap: newOrdersMap };
+};
 
 // Purely add a new order to state, check for too many orders, fill any orders possible, and return new state
 export const addNewOrder = (state, type, price, amount) => {
-  const newId = state.orderCount + 1
+  const newId = state.orderCount + 1;
   const newOrder = {
     id: newId,
     type: type,
     price: price,
     amount: amount,
     status: STATUS_PENDING,
-    lastModified: moment(),
-  }
-  let newState = { ...state, orderCount: newId, ordersMap: state.ordersMap.set(newId, newOrder) }
-  newState = trimOrders(newState)
-  return fillOrders(newState)
-}
+    lastModified: moment()
+  };
+  let newState = {
+    ...state,
+    orderCount: newId,
+    ordersMap: state.ordersMap.set(newId, newOrder)
+  };
+  newState = trimOrders(newState);
+  return fillOrders(newState);
+};
 
 // Purely add a new randomized order, influenced by prescribed market factors
-export const addRandomOrder = (state) => {
-  const { lastTradePrice } = state
+export const addRandomOrder = state => {
+  const { lastTradePrice } = state;
 
   // Get a naive market factor
-  const marketFactor = (getRandomInt(1, MARKET_VOLATILITY) + MARKET_BULLISH) / (getRandomInt(1, MARKET_VOLATILITY) + MARKET_BEARISH)
+  const marketFactor =
+    (getRandomInt(1, MARKET_VOLATILITY) + MARKET_BULLISH) /
+    (getRandomInt(1, MARKET_VOLATILITY) + MARKET_BEARISH);
 
-  const newPrice = marketFactor * lastTradePrice
+  const newPrice = marketFactor * lastTradePrice;
 
   // Sort buy orders by price, high to low
-  const buyOrders = state.ordersMap.toArray()
+  const buyOrders = state.ordersMap
+    .toArray()
     .filter(order => order.status === STATUS_PENDING)
     .filter(order => order.type === TYPE_BUY)
-    .sort((orderA, orderB) => orderB.price - orderA.price)
-  const numBuyOrders = buyOrders.length
+    .sort((orderA, orderB) => orderB.price - orderA.price);
+  const numBuyOrders = buyOrders.length;
 
   // Sort sell orders by price, low to high
-  const sellOrders = state.ordersMap.toArray()
+  const sellOrders = state.ordersMap
+    .toArray()
     .filter(order => order.status === STATUS_PENDING)
     .filter(order => order.type === TYPE_SELL)
-    .sort((orderA, orderB) => orderA.price - orderB.price)
-  const numSellOrders = sellOrders.length
+    .sort((orderA, orderB) => orderA.price - orderB.price);
+  const numSellOrders = sellOrders.length;
 
   // Get a biased order type depending on which order type is dominating
-  let type = getRandomOrderType()
+  let type = getRandomOrderType();
   if (numBuyOrders / numSellOrders < 1) {
-    type = getRandomOrderType(numBuyOrders/numSellOrders, 0)
+    type = getRandomOrderType(numBuyOrders / numSellOrders, 0);
   } else if (numSellOrders / numBuyOrders < 1) {
-    type = getRandomOrderType(0, numSellOrders/numBuyOrders)
+    type = getRandomOrderType(0, numSellOrders / numBuyOrders);
   }
 
-  let price = lastTradePrice
+  let price = lastTradePrice;
   if (marketFactor > 1) {
     // Presumed bullish market, drive the price higher
-    const currentMaxBuy = numBuyOrders > 0 ? buyOrders[0].price : lastTradePrice
+    const currentMaxBuy =
+      numBuyOrders > 0 ? buyOrders[0].price : lastTradePrice;
 
-    const low = Math.max(lastTradePrice, currentMaxBuy)
+    const low = Math.max(lastTradePrice, currentMaxBuy);
 
-    price = getRandomPrice(low, newPrice)
+    price = getRandomPrice(low, newPrice);
   } else if (marketFactor < 1) {
     // Presumed bearish market, drive the price lower
-    const currentLowestSell = numSellOrders > 0 ? sellOrders[0].price : lastTradePrice
+    const currentLowestSell =
+      numSellOrders > 0 ? sellOrders[0].price : lastTradePrice;
 
-    const low = Math.max(newPrice, MARKET_LOWEST_PRICE)
-    const high = Math.max(lastTradePrice, currentLowestSell)
+    const low = Math.max(newPrice, MARKET_LOWEST_PRICE);
+    const high = Math.max(lastTradePrice, currentLowestSell);
 
-    price = getRandomPrice(low, high)
+    price = getRandomPrice(low, high);
   }
 
-  const amount = getRandomAmount(marketFactor * MARKET_VOLUME_SEED)
+  const amount = getRandomAmount(marketFactor * MARKET_VOLUME_SEED);
 
-  return addNewOrder(state, type, price, amount)
-}
+  return addNewOrder(state, type, price, amount);
+};
