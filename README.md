@@ -4,6 +4,8 @@ A simulated cryptocurrency exchange
 
 https://coin-xchange.surge.sh
 
+[![CircleCI](https://circleci.com/gh/marlowpayne/coin-xchange/tree/master.svg?style=svg)](https://circleci.com/gh/marlowpayne/coin-xchange/tree/master)
+
 ## Running
 
 ```sh
