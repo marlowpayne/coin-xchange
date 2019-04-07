@@ -1,13 +1,13 @@
-import React from 'react'
-import { connect } from 'react-redux'
-import styled from 'styled-components'
+import React from "react";
+import { connect } from "react-redux";
+import styled from "styled-components";
 
 // Material UI comps
-import Subheader from 'material-ui/Subheader'
+import Subheader from "material-ui/Subheader";
 
-import { TYPE_SELL, STATUS_PENDING } from '../constants'
-import { OrderList } from '../visuals/OrderList'
-import { media } from '../utils'
+import { TYPE_SELL, STATUS_PENDING } from "../constants";
+import { OrderList } from "../visuals/OrderList";
+import { media } from "../utils";
 
 const Wrapper = styled.div`
   width: 20vw;
@@ -15,25 +15,25 @@ const Wrapper = styled.div`
   padding: 1vw;
   ${media.laptop`height: 30vh;`}
   ${media.laptop`overflow-y: auto;`}
-`
+`;
 
 const Visual = ({ orders }) => {
   const sellOrders = orders
     .filter(order => order.status === STATUS_PENDING)
     .filter(order => order.type === TYPE_SELL)
-    .sort((orderA, orderB) => orderA.price - orderB.price)
+    .sort((orderA, orderB) => orderA.price - orderB.price);
 
   return (
     <Wrapper>
       <Subheader>Sell Orders</Subheader>
       <OrderList orders={sellOrders} />
     </Wrapper>
-  )
-}
+  );
+};
 
 const mapStateToProps = storeState => ({
   orders: storeState.orders.ordersMap.toArray(),
-  count: storeState.orders.orderCount,
-})
+  count: storeState.orders.orderCount
+});
 
-export const PendingSellOrders = connect(mapStateToProps)(Visual)
+export const PendingSellOrders = connect(mapStateToProps)(Visual);
