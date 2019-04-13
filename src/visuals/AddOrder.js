@@ -3,14 +3,22 @@ import styled from "styled-components";
 import PropTypes from "prop-types";
 
 // Material UI comps
-import RaisedButton from "material-ui/RaisedButton";
-import TextField from "material-ui/TextField";
-import SelectField from "material-ui/SelectField";
-import MenuItem from "material-ui/MenuItem";
+import Button from "@material-ui/core/Button";
+import TextField from "@material-ui/core/TextField";
+import Select from "@material-ui/core/Select";
+import FormControl from "@material-ui/core/FormControl";
+import InputLabel from "@material-ui/core/InputLabel";
+import MenuItem from "@material-ui/core/MenuItem";
 
 import { TYPE_BUY, TYPE_SELL } from "../constants";
 
-const Wrapper = styled.div``;
+const Wrapper = styled.form`
+  display: flex;
+  flex-wrap: wrap;
+`;
+const FormItem = styled(FormControl)`
+  margin: 10px !important;
+`;
 
 export class AddOrder extends React.Component {
   static propTypes = {
@@ -31,7 +39,7 @@ export class AddOrder extends React.Component {
 
   onAmountChange = event => this.setState({ amount: event.target.value });
 
-  onTypeChange = (event, index, value) => this.setState({ type: value });
+  onTypeChange = event => this.setState({ type: event.target.value });
 
   onOrderSubmit = () => {
     const { onSubmit } = this.props;
@@ -61,29 +69,46 @@ export class AddOrder extends React.Component {
     const { price, amount, type } = this.state;
 
     return (
-      <Wrapper>
-        <SelectField
-          floatingLabelText="Order Type"
-          value={type}
-          onChange={this.onTypeChange}
-        >
-          <MenuItem value={TYPE_BUY} primaryText="Buy" />
-          <MenuItem value={TYPE_SELL} primaryText="Sell" />
-        </SelectField>
-
-        <TextField
-          floatingLabelText="Price"
-          type="number"
-          value={price}
-          onChange={this.onPriceChange}
-        />
-        <TextField
-          floatingLabelText="Amount"
-          type="number"
-          value={amount}
-          onChange={this.onAmountChange}
-        />
-        <RaisedButton label="Add Order" primary onClick={this.onOrderSubmit} />
+      <Wrapper autoComplete="off">
+        <FormItem>
+          <InputLabel htmlFor="order-type">Order Type</InputLabel>
+          <Select
+            value={type}
+            onChange={this.onTypeChange}
+            inputProps={{
+              name: "Order Type",
+              id: "order-type"
+            }}
+          >
+            <MenuItem value={TYPE_BUY}>Buy</MenuItem>
+            <MenuItem value={TYPE_SELL}>Sell</MenuItem>
+          </Select>
+        </FormItem>
+        <FormItem>
+          <TextField
+            label="Price"
+            type="number"
+            value={price}
+            onChange={this.onPriceChange}
+          />
+        </FormItem>
+        <FormItem>
+          <TextField
+            label="Amount"
+            type="number"
+            value={amount}
+            onChange={this.onAmountChange}
+          />
+        </FormItem>
+        <FormItem>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={this.onOrderSubmit}
+          >
+            Add Order
+          </Button>
+        </FormItem>
       </Wrapper>
     );
   }
