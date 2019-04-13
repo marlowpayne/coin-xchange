@@ -17,7 +17,9 @@ const Wrapper = styled.form`
   flex-wrap: wrap;
 `;
 const FormItem = styled(FormControl)`
-  margin: 10px !important;
+  && {
+    margin: 10px;
+  }
 `;
 
 export class AddOrder extends React.Component {

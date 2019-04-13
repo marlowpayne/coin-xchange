@@ -3,8 +3,10 @@ import styled from "styled-components";
 import PropTypes from "prop-types";
 
 // Material UI comps
-import AppBar from "material-ui/AppBar";
-import FlatButton from "material-ui/FlatButton";
+import AppBar from "@material-ui/core/AppBar";
+import Toolbar from "@material-ui/core/Toolbar";
+import Typography from "@material-ui/core/Typography";
+import Chip from "@material-ui/core/Chip";
 
 import { PendingSellOrders } from "../containers/PendingSellOrders";
 import { PendingBuyOrders } from "../containers/PendingBuyOrders";
@@ -15,6 +17,9 @@ import { displayTwoDecimals, media } from "../utils";
 import { ACTIVITY_DELAY_MIN_MS, ACTIVITY_DELAY_MAX_MS } from "../constants";
 
 const Root = styled.div``;
+const FlexGrow = styled.div`
+  flex-grow: 1;
+`;
 const Wrapper = styled.div`
   margin: 0;
   padding: 0;
@@ -70,15 +75,18 @@ export class App extends React.Component {
     const lastTradeLabelText = `Last trade price: $${displayTwoDecimals(
       lastTradePrice
     )}`;
-    const LastTradePrice = <FlatButton label={lastTradeLabelText} />;
 
     return (
       <Root>
-        <AppBar
-          title="Coin Xchange"
-          showMenuIconButton={false}
-          iconElementRight={LastTradePrice}
-        />
+        <AppBar position="static">
+          <Toolbar>
+            <Typography variant="title" noWrap>
+              Coin Xchange
+            </Typography>
+            <FlexGrow />
+            <Chip label={lastTradeLabelText} />
+          </Toolbar>
+        </AppBar>
         <Wrapper>
           <OrdersWrapper>
             <PendingSellOrders />
