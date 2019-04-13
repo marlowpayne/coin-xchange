@@ -3,16 +3,16 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@material-ui/core": "^3.9.3",
     "chart.js": "^2.7.2",
     "chartjs-chart-financial": "git+https://git@github.com/marlowpayne/chartjs-chart-financial.git",
     "immutable": "^3.8.2",
     "lodash": "^4.17.5",
-    "material-ui": "^0.20.0",
     "moment": "^2.22.0",
-    "prop-types": "^15.6.1",
-    "react": "^16.2.0",
-    "react-dom": "^16.2.0",
-    "react-redux": "^5.0.7",
+    "prop-types": "^15.7.2",
+    "react": "^16.8.6",
+    "react-dom": "^16.8.6",
+    "react-redux": "^5.1.1",
     "react-scripts": "1.1.1",
     "react-transition-group": "^2.3.0",
     "redux": "^3.7.2",
@@ -42,7 +42,7 @@
     }
   },
   "lint-staged": {
-    "*.{js,json,css,md}": [
+    "*.{js,json,md}": [
       "prettier --write",
       "git add"
     ]

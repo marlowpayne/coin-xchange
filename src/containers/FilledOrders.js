@@ -3,7 +3,7 @@ import { connect } from "react-redux";
 import styled from "styled-components";
 
 // Material UI comps
-import Subheader from "material-ui/Subheader";
+import ListSubheader from "@material-ui/core/ListSubheader";
 
 import { STATUS_FILLED } from "../constants";
 import { OrderList } from "../visuals/OrderList";
@@ -24,7 +24,7 @@ const Visual = ({ orders }) => {
 
   return (
     <Wrapper>
-      <Subheader>Filled Orders</Subheader>
+      <ListSubheader>Filled Orders</ListSubheader>
       <OrderList orders={filledOrders} />
     </Wrapper>
   );
