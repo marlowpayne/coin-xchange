@@ -7,7 +7,7 @@
     "chart.js": "^2.7.2",
     "chartjs-chart-financial": "git+https://git@github.com/chartjs/chartjs-chart-financial.git",
     "immutable": "^3.8.2",
-    "lodash": "^4.17.5",
+    "lodash": "^4.17.21",
     "moment": "^2.22.0",
     "prop-types": "^15.7.2",
     "react": "^16.8.6",
