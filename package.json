@@ -4,7 +4,7 @@
   "private": true,
   "dependencies": {
     "@material-ui/core": "^3.9.3",
-    "chart.js": "^2.7.2",
+    "chart.js": "^2.9.4",
     "chartjs-chart-financial": "git+https://git@github.com/chartjs/chartjs-chart-financial.git",
     "immutable": "^3.8.2",
     "lodash": "^4.17.5",
